@@ -215,7 +215,12 @@ public final class PortAllocationManager {
         if(owner!=null)
             throw new PortUnavailableException("Owned by "+owner);
 
-        return node.getChannel().call(new AllocateTask(port));
+        int realPort = port;
+        while(realPort == 0 || ports.get(realPort) != null) {
+            realPort = node.getChannel().call(new AllocateTask(realPort));
+        }
+        return realPort;
+//        return node.getChannel().call(new AllocateTask(port));
     }
 
     static final class PortUnavailableException extends IOException {
