@@ -211,21 +211,29 @@ public final class PortAllocationManager {
      *      If the specified port is not available
      */
     private int allocatePort(final int port) throws InterruptedException, IOException {
-        AbstractBuild owner = ports.get(port);
-        if(owner!=null)
-            throw new PortUnavailableException("Owned by "+owner);
-
-        int realPort = port;
-        while(realPort == 0 || ports.get(realPort) != null) {
-            realPort = node.getChannel().call(new AllocateTask(realPort));
+        if (port != 0) {
+           AbstractBuild owner = ports.get(port);
+            if(owner!=null)
+                throw new PortUnavailableException("Owned by "+owner);
+            return node.getChannel().call(new AllocateTask(port));
         }
-        return realPort;
-//        return node.getChannel().call(new AllocateTask(port));
-    }
 
-    static final class PortUnavailableException extends IOException {
-        PortUnavailableException(String msg) {
-            super(msg);
+        // port ==0 means we let the OS choose a port.
+        // But we still want to make sure that we do not issue the same
+        // port to two builds at the same time even when it is not bound.
+        // Since we have one global "ports" list on master this should prevent
+        // conflicts on slaves too.
+
+        int realPort;
+        for (int i = 0; i < MAX_TRIES; i++) {
+            realPort = node.getChannel().call(new AllocateTask(0));
+            if (ports.get(realPort) != null) {
+                // realPort is not issued to a build yet. Let's use it.
+                return realPort;
+            }
+        }
+
+        throw new PortUnavailableException("OS could not find free port after " + MAX_TRIES + " tries.")
         }
 
         // not compatible with JDK1.5
