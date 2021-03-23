@@ -233,7 +233,8 @@ public final class PortAllocationManager {
             }
         }
 
-        throw new Exception("OS could not find free port after " + MAX_TRIES + " tries.");
+        throw new InterruptedException("OS could not find free port after " + MAX_TRIES + " tries.");
+    }
 
         // not compatible with JDK1.5
 //        PortUnavailableException(Throwable cause) {
