@@ -227,14 +227,13 @@ public final class PortAllocationManager {
         int realPort;
         for (int i = 0; i < MAX_TRIES; i++) {
             realPort = node.getChannel().call(new AllocateTask(0));
-            if (ports.get(realPort) != null) {
+            if (ports.get(realPort) == null) {
                 // realPort is not issued to a build yet. Let's use it.
                 return realPort;
             }
         }
 
-        throw new PortUnavailableException("OS could not find free port after " + MAX_TRIES + " tries.")
-        }
+        throw new Exception("OS could not find free port after " + MAX_TRIES + " tries.");
 
         // not compatible with JDK1.5
 //        PortUnavailableException(Throwable cause) {
