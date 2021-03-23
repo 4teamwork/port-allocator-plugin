@@ -240,6 +240,11 @@ public final class PortAllocationManager {
 //            super(cause);
 //        }
 
+    static final class PortUnavailableException extends IOException {
+        PortUnavailableException(String msg) {
+            super(msg);
+        }
+
         private static final long serialVersionUID = 1L;
     }
 
