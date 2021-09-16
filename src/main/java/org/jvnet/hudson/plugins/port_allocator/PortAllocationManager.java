@@ -61,7 +61,7 @@ public final class PortAllocationManager {
             try {
                 // try to allocate preferential port,
                 i = allocatePort(prefPort);
-            } catch (PortUnavailableException ex) {
+            } catch (PortUnavailableException ex2) {
                 // if not available, assign a random port
                 i = allocatePort(0);
             }
