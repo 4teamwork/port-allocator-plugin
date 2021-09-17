@@ -7,6 +7,7 @@ import hudson.remoting.Callable;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -24,6 +25,8 @@ public final class PortAllocationManager {
 
     /** Maximum number of tries to allocate a specific port range. */
     private static final int MAX_TRIES = 100;
+    private static final int RANDOM_PORT_MIN = 10000;
+    private static final int RANDOM_PORT_MAX = 65000;
 
     /**
      * Ports currently in use, to the build that uses it.
@@ -50,11 +53,18 @@ public final class PortAllocationManager {
     public synchronized int allocateRandom(AbstractBuild owner, int prefPort) throws InterruptedException, IOException {
         int i;
         try {
-            // try to allocate preferential port,
-            i = allocatePort(prefPort);
+            // First try to allocate a completely random port, even if there is a prefered one.
+            // This should fix issues with duplicated port allocation if using this plugin with lots of builds
+            // at the same time.
+            i = allocatePort(ThreadLocalRandom.current().nextInt(RANDOM_PORT_MIN, RANDOM_PORT_MAX + 1));
         } catch (PortUnavailableException ex) {
-            // if not available, assign a random port
-            i = allocatePort(0);
+            try {
+                // try to allocate preferential port,
+                i = allocatePort(prefPort);
+            } catch (PortUnavailableException ex2) {
+                // if not available, assign a random port
+                i = allocatePort(0);
+            }
         }
         ports.put(i,owner);
         return i;
