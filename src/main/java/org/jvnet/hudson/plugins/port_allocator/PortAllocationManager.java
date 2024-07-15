@@ -36,6 +36,8 @@ public final class PortAllocationManager {
     private static final Map<Computer, WeakReference<PortAllocationManager>> INSTANCES =
             new WeakHashMap<Computer, WeakReference<PortAllocationManager>>();
 
+    private static final Random rnd = new Random();
+
     private PortAllocationManager(Computer node) {
         this.node = node;
     }
@@ -74,9 +76,8 @@ public final class PortAllocationManager {
      * Allocate a continuous range of ports within specified limits.
      * The caller is responsible for freeing the individual ports within
      * the allocated range.
-     * @param portAllocator
-     * @param build the current build
-     * @param start the first in the range of allowable ports
+     * @param owner current build
+     * @param start first port in the range of allowable ports
      * @param end the last entry in the range of allowable ports
      * @param count the number of ports to allocate
      * @param isConsecutive true if the allocated ports should be consecutive
@@ -91,7 +92,6 @@ public final class PortAllocationManager {
         int[] allocated = new int[count];
 
         boolean allocationFailed = true;
-        Random rnd = new Random();
 
         // Attempt the whole allocation a few times using a brute force approach.
         for (int trynum = 0; (allocationFailed && (trynum < MAX_TRIES)); trynum++) {
@@ -279,6 +279,11 @@ public final class PortAllocationManager {
             int localPort = server.getLocalPort();
             server.close();
             return localPort;
+        }
+
+        @Override
+        public void checkRoles(final org.jenkinsci.remoting.RoleChecker checker) throws SecurityException {
+            checker.check(this, jenkins.security.Roles.SLAVE);
         }
 
         private static final long serialVersionUID = 1L;
