@@ -1,7 +1,10 @@
-target
 work
 .classpath
 .project
 .settings
 *.iml
 .idea
+
+target/maven-archiver/
+target/port-allocator.*
+target/port-allocator/
