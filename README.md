@@ -9,7 +9,7 @@ Install maven and java8.
 To build a .hpi file, run:
 
 ``` bash
-mvn hpi:hpi
+mvn verify
 ```
 
-To update the plugin, upload the .hpi file in jenkins under the plugins configuration: https://jenkins.4teamwork.ch/pluginManager/advanced
+To update the plugin, upload the `target/port-allocator.hpi` file in jenkins under the plugins configuration: https://jenkins.4teamwork.ch/pluginManager/advanced
